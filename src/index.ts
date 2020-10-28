@@ -5,12 +5,17 @@ import makePdf from './makePdf';
 import firebase from './firebase';
 import printFile from './printFile';
 export type InputData = {
+  uid?: string | null;
   name?: string | null;
   text?: string | null;
 };
 // const getData = (): Promise<Array<firebase.firestore.DocumentData | null>> => {
 //   return new Promise((res, err) => {});
 // };
+function timeout(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 async function main(): Promise<void> {
   const auth = firebase.auth();
   const signedIn = await auth.signInAnonymously();
@@ -20,12 +25,21 @@ async function main(): Promise<void> {
   const firestore = firebase.firestore();
   let docArray: Array<firebase.firestore.DocumentData | null> = [];
   const printJob = async (
-    doc: firebase.firestore.DocumentData | null,
+    data: firebase.firestore.DocumentData | null,
+    doc: firebase.firestore.QueryDocumentSnapshot<
+      firebase.firestore.DocumentData
+    > | null,
   ): Promise<void> => {
-    await makePdf({ name: doc?.name || 'none', text: doc?.text });
-
-    const printed = await printFile(doc?.name + '.pdf');
+    const filename = await makePdf({
+      uid: data?.uid,
+      name: data?.name || 'none',
+      text: data?.text,
+    });
+    await timeout(300);
+    const printed = await printFile(filename);
     console.log('printed ', printed);
+    const setData = await doc?.ref.set({ printed: true }, { merge: true });
+    console.log(setData);
   };
   firestore
     .collection('print')
@@ -33,16 +47,12 @@ async function main(): Promise<void> {
     .onSnapshot(docs => {
       docArray = [];
       docs.forEach(doc => {
-        docArray.push(doc.data());
+        docArray.push({ data: doc.data(), ref: doc });
       });
-      docArray.forEach(doc => {
-        console.log(doc);
-        printJob(doc);
+      docArray.forEach(obj => {
+        console.log(obj);
+        printJob(obj?.data, obj?.ref);
       });
-      docs.forEach(doc => {
-        doc.ref.set({ printed: true }, { merge: true });
-      });
-      console.log('done');
     });
 
   //   makePdf(data);

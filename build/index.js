@@ -43,10 +43,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var makePdf_1 = __importDefault(require("./makePdf"));
 var firebase_1 = __importDefault(require("./firebase"));
 var printFile_1 = __importDefault(require("./printFile"));
-var path = require("path");
 // const getData = (): Promise<Array<firebase.firestore.DocumentData | null>> => {
 //   return new Promise((res, err) => {});
 // };
+function timeout(ms) {
+    return new Promise(function (resolve) { return setTimeout(resolve, ms); });
+}
 function main() {
     return __awaiter(this, void 0, void 0, function () {
         var auth, signedIn, user, uid, firestore, docArray, printJob;
@@ -65,18 +67,28 @@ function main() {
                     console.log('user ', uid);
                     firestore = firebase_1.default.firestore();
                     docArray = [];
-                    printJob = function (doc) { return __awaiter(_this, void 0, void 0, function () {
-                        var file, printed;
+                    printJob = function (data, doc) { return __awaiter(_this, void 0, void 0, function () {
+                        var filename, printed, setData;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
-                                case 0: return [4 /*yield*/, makePdf_1.default({ name: (doc === null || doc === void 0 ? void 0 : doc.name) || 'none', text: doc === null || doc === void 0 ? void 0 : doc.text })];
+                                case 0: return [4 /*yield*/, makePdf_1.default({
+                                        uid: data === null || data === void 0 ? void 0 : data.uid,
+                                        name: (data === null || data === void 0 ? void 0 : data.name) || 'none',
+                                        text: data === null || data === void 0 ? void 0 : data.text,
+                                    })];
                                 case 1:
-                                    _a.sent();
-                                    file = path.resolve(process.cwd(), (doc === null || doc === void 0 ? void 0 : doc.name) + '.pdf');
-                                    return [4 /*yield*/, printFile_1.default(file)];
+                                    filename = _a.sent();
+                                    return [4 /*yield*/, timeout(300)];
                                 case 2:
+                                    _a.sent();
+                                    return [4 /*yield*/, printFile_1.default(filename)];
+                                case 3:
                                     printed = _a.sent();
                                     console.log('printed ', printed);
+                                    return [4 /*yield*/, (doc === null || doc === void 0 ? void 0 : doc.ref.set({ printed: true }, { merge: true }))];
+                                case 4:
+                                    setData = _a.sent();
+                                    console.log(setData);
                                     return [2 /*return*/];
                             }
                         });
@@ -87,16 +99,12 @@ function main() {
                         .onSnapshot(function (docs) {
                         docArray = [];
                         docs.forEach(function (doc) {
-                            docArray.push(doc.data());
+                            docArray.push({ data: doc.data(), ref: doc });
                         });
-                        docArray.forEach(function (doc) {
-                            console.log(doc);
-                            printJob(doc);
+                        docArray.forEach(function (obj) {
+                            console.log(obj);
+                            printJob(obj === null || obj === void 0 ? void 0 : obj.data, obj === null || obj === void 0 ? void 0 : obj.ref);
                         });
-                        docs.forEach(function (doc) {
-                            doc.ref.set({ printed: true }, { merge: true });
-                        });
-                        console.log('done');
                     });
                     return [2 /*return*/];
             }
