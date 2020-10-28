@@ -33,11 +33,18 @@ async function main(): Promise<void> {
       name: data?.name || 'none',
       text: data?.text,
     });
-    await timeout(300); // TODO: find out why this is necessary, even with async await :<
+    await timeout(300);
+    // TODO: find out why this is necessary, even with async await :<
     const printed = await printFile(filename);
     console.log('printed ', printed);
+    // TODO: if print was unsuccessful, settimeout and try again
     await doc?.ref.set({ printed: true }, { merge: true });
   };
+
+  //FIREBASE LISTENERS
+  //this is the main interesting bit - listens to the 'print' collection
+  //gets all the docs inside that have printed: false
+  //calls printJob which prints them and sets printed: true
   firestore
     .collection('print')
     .where('printed', '==', false)
