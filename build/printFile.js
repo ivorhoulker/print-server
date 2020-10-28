@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-console */
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -36,53 +35,34 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
         if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
     }
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var makePdf_1 = __importDefault(require("./makePdf"));
-var firebase_1 = __importDefault(require("./firebase"));
-// const getData = (): Promise<Array<firebase.firestore.DocumentData | null>> => {
-//   return new Promise((res, err) => {});
-// };
-function main() {
+/* eslint-disable no-console */
+var printer = require("printer");
+var fs = require("fs");
+var path = require("path");
+function printFile(name) {
     return __awaiter(this, void 0, void 0, function () {
-        var auth, signedIn, user, uid, firestore, docArray;
         return __generator(this, function (_a) {
-            switch (_a.label) {
-                case 0:
-                    auth = firebase_1.default.auth();
-                    return [4 /*yield*/, auth.signInAnonymously()];
-                case 1:
-                    signedIn = _a.sent();
-                    return [4 /*yield*/, signedIn.user];
-                case 2:
-                    user = _a.sent();
-                    uid = user === null || user === void 0 ? void 0 : user.uid;
-                    console.log('user ', uid);
-                    firestore = firebase_1.default.firestore();
-                    docArray = [];
-                    firestore
-                        .collection('print')
-                        .where('printed', '==', false)
-                        .onSnapshot(function (docs) {
-                        docArray = [];
-                        docs.forEach(function (doc) {
-                            docArray.push(doc.data());
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    var file = path.resolve(process.cwd(), name);
+                    fs.readFile(file, function (err, data) {
+                        if (err) {
+                            console.error('err:' + err);
+                            return;
+                        }
+                        printer.printDirect({
+                            data: data,
+                            type: 'PDF',
+                            success: function (id) {
+                                resolve(id);
+                            },
+                            error: function (err) {
+                                reject(err);
+                            },
                         });
-                        docArray.forEach(function (doc) {
-                            console.log(doc);
-                            makePdf_1.default({ name: (doc === null || doc === void 0 ? void 0 : doc.name) || 'none', text: doc === null || doc === void 0 ? void 0 : doc.text });
-                        });
-                        docs.forEach(function (doc) {
-                            doc.ref.set({ printed: true }, { merge: true });
-                        });
-                        console.log('done');
                     });
-                    return [2 /*return*/];
-            }
+                })];
         });
     });
 }
-main();
-// Create a document
+exports.default = printFile;
