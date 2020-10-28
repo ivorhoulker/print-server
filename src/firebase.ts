@@ -1,8 +1,6 @@
 import firebase from 'firebase/app';
 import 'firebase/firestore';
 import 'firebase/auth';
-import 'firebase/analytics';
-import 'firebase/database';
 require('dotenv').config();
 
 firebase.initializeApp({

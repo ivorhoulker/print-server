@@ -11,7 +11,6 @@ async function printFile(name: string): Promise<{}> {
         console.error('err:' + err);
         return;
       }
-
       printer.printDirect({
         data: data,
         type: 'PDF',

@@ -9,9 +9,7 @@ export type InputData = {
   name?: string | null;
   text?: string | null;
 };
-// const getData = (): Promise<Array<firebase.firestore.DocumentData | null>> => {
-//   return new Promise((res, err) => {});
-// };
+
 function timeout(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -35,7 +33,7 @@ async function main(): Promise<void> {
       name: data?.name || 'none',
       text: data?.text,
     });
-    await timeout(300);
+    await timeout(300); // TODO: find out why this is necessary, even with async await :<
     const printed = await printFile(filename);
     console.log('printed ', printed);
     await doc?.ref.set({ printed: true }, { merge: true });
@@ -53,11 +51,5 @@ async function main(): Promise<void> {
         printJob(obj?.data, obj?.ref);
       });
     });
-
-  //   makePdf(data);
-
-  //
 }
 main();
-
-// Create a document
