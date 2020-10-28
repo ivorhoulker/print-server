@@ -42,9 +42,9 @@ var path = require("path");
 var PDFDocument = require("pdfkit");
 var makePdf = function (data) { return __awaiter(void 0, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        return [2 /*return*/, new Promise(function (res, err) {
+        return [2 /*return*/, new Promise(function (res) {
                 var uid = data.uid, name = data.name, text = data.text;
-                var filename = uid + '.pdf' || 'None.pdf';
+                var filename = 'print/' + uid + '.pdf' || 'None.pdf';
                 var doc = new PDFDocument();
                 // Pipe its output somewhere, like to a file or HTTP response
                 // See below for browser usage

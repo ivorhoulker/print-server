@@ -5,9 +5,9 @@ import PDFDocument = require('pdfkit');
 
 import { InputData } from './index';
 const makePdf = async (data: InputData): Promise<string> => {
-  return new Promise((res, err) => {
+  return new Promise(res => {
     const { uid, name, text } = data;
-    const filename = uid + '.pdf' || 'None.pdf';
+    const filename = 'print/' + uid + '.pdf' || 'None.pdf';
     const doc = new PDFDocument();
     // Pipe its output somewhere, like to a file or HTTP response
     // See below for browser usage

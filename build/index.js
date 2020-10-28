@@ -51,7 +51,7 @@ function timeout(ms) {
 }
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var auth, signedIn, user, uid, firestore, docArray, printJob;
+        var auth, signedIn, user, uid, firestore, printJob;
         var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
@@ -60,15 +60,12 @@ function main() {
                     return [4 /*yield*/, auth.signInAnonymously()];
                 case 1:
                     signedIn = _a.sent();
-                    return [4 /*yield*/, signedIn.user];
-                case 2:
-                    user = _a.sent();
+                    user = signedIn.user;
                     uid = user === null || user === void 0 ? void 0 : user.uid;
                     console.log('user ', uid);
                     firestore = firebase_1.default.firestore();
-                    docArray = [];
                     printJob = function (data, doc) { return __awaiter(_this, void 0, void 0, function () {
-                        var filename, printed, setData;
+                        var filename, printed;
                         return __generator(this, function (_a) {
                             switch (_a.label) {
                                 case 0: return [4 /*yield*/, makePdf_1.default({
@@ -87,8 +84,7 @@ function main() {
                                     console.log('printed ', printed);
                                     return [4 /*yield*/, (doc === null || doc === void 0 ? void 0 : doc.ref.set({ printed: true }, { merge: true }))];
                                 case 4:
-                                    setData = _a.sent();
-                                    console.log(setData);
+                                    _a.sent();
                                     return [2 /*return*/];
                             }
                         });
@@ -97,7 +93,7 @@ function main() {
                         .collection('print')
                         .where('printed', '==', false)
                         .onSnapshot(function (docs) {
-                        docArray = [];
+                        var docArray = [];
                         docs.forEach(function (doc) {
                             docArray.push({ data: doc.data(), ref: doc });
                         });

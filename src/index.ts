@@ -19,11 +19,11 @@ function timeout(ms: number): Promise<void> {
 async function main(): Promise<void> {
   const auth = firebase.auth();
   const signedIn = await auth.signInAnonymously();
-  const user = await signedIn.user;
+  const user = signedIn.user;
   const uid = user?.uid;
   console.log('user ', uid);
   const firestore = firebase.firestore();
-  let docArray: Array<firebase.firestore.DocumentData | null> = [];
+
   const printJob = async (
     data: firebase.firestore.DocumentData | null,
     doc: firebase.firestore.QueryDocumentSnapshot<
@@ -38,14 +38,13 @@ async function main(): Promise<void> {
     await timeout(300);
     const printed = await printFile(filename);
     console.log('printed ', printed);
-    const setData = await doc?.ref.set({ printed: true }, { merge: true });
-    console.log(setData);
+    await doc?.ref.set({ printed: true }, { merge: true });
   };
   firestore
     .collection('print')
     .where('printed', '==', false)
     .onSnapshot(docs => {
-      docArray = [];
+      const docArray: Array<firebase.firestore.DocumentData | null> = [];
       docs.forEach(doc => {
         docArray.push({ data: doc.data(), ref: doc });
       });
