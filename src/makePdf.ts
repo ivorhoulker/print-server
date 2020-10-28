@@ -2,7 +2,7 @@
 import fs = require('fs');
 import path = require('path');
 import PDFDocument = require('pdfkit');
-import printFile from './printFile';
+
 import { InputData } from './index';
 const makePdf = (data: InputData): PDFKit.PDFDocument => {
   const { name, text } = data;
@@ -20,10 +20,7 @@ const makePdf = (data: InputData): PDFKit.PDFDocument => {
 
   // end and display the document in the iframe to the right
   doc.end();
-  const file = path.resolve(process.cwd(), filename);
 
-  const printed = printFile(file);
-  console.log('printed ', printed);
   return doc;
 };
 

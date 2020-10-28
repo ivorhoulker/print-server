@@ -3,7 +3,7 @@
 import makePdf from './makePdf';
 
 import firebase from './firebase';
-
+import printFile from './printFile';
 export type InputData = {
   name?: string | null;
   text?: string | null;
@@ -19,6 +19,14 @@ async function main(): Promise<void> {
   console.log('user ', uid);
   const firestore = firebase.firestore();
   let docArray: Array<firebase.firestore.DocumentData | null> = [];
+  const printJob = async (
+    doc: firebase.firestore.DocumentData | null,
+  ): Promise<void> => {
+    await makePdf({ name: doc?.name || 'none', text: doc?.text });
+
+    const printed = await printFile(doc?.name + '.pdf');
+    console.log('printed ', printed);
+  };
   firestore
     .collection('print')
     .where('printed', '==', false)
@@ -29,7 +37,7 @@ async function main(): Promise<void> {
       });
       docArray.forEach(doc => {
         console.log(doc);
-        makePdf({ name: doc?.name || 'none', text: doc?.text });
+        printJob(doc);
       });
       docs.forEach(doc => {
         doc.ref.set({ printed: true }, { merge: true });

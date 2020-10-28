@@ -42,12 +42,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var makePdf_1 = __importDefault(require("./makePdf"));
 var firebase_1 = __importDefault(require("./firebase"));
+var printFile_1 = __importDefault(require("./printFile"));
+var path = require("path");
 // const getData = (): Promise<Array<firebase.firestore.DocumentData | null>> => {
 //   return new Promise((res, err) => {});
 // };
 function main() {
     return __awaiter(this, void 0, void 0, function () {
-        var auth, signedIn, user, uid, firestore, docArray;
+        var auth, signedIn, user, uid, firestore, docArray, printJob;
+        var _this = this;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -62,6 +65,22 @@ function main() {
                     console.log('user ', uid);
                     firestore = firebase_1.default.firestore();
                     docArray = [];
+                    printJob = function (doc) { return __awaiter(_this, void 0, void 0, function () {
+                        var file, printed;
+                        return __generator(this, function (_a) {
+                            switch (_a.label) {
+                                case 0: return [4 /*yield*/, makePdf_1.default({ name: (doc === null || doc === void 0 ? void 0 : doc.name) || 'none', text: doc === null || doc === void 0 ? void 0 : doc.text })];
+                                case 1:
+                                    _a.sent();
+                                    file = path.resolve(process.cwd(), (doc === null || doc === void 0 ? void 0 : doc.name) + '.pdf');
+                                    return [4 /*yield*/, printFile_1.default(file)];
+                                case 2:
+                                    printed = _a.sent();
+                                    console.log('printed ', printed);
+                                    return [2 /*return*/];
+                            }
+                        });
+                    }); };
                     firestore
                         .collection('print')
                         .where('printed', '==', false)
@@ -72,7 +91,7 @@ function main() {
                         });
                         docArray.forEach(function (doc) {
                             console.log(doc);
-                            makePdf_1.default({ name: (doc === null || doc === void 0 ? void 0 : doc.name) || 'none', text: doc === null || doc === void 0 ? void 0 : doc.text });
+                            printJob(doc);
                         });
                         docs.forEach(function (doc) {
                             doc.ref.set({ printed: true }, { merge: true });
